@@ -27,9 +27,11 @@
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
+const store = useStore()
 const router = useRouter()
 
 const form = reactive({
@@ -39,12 +41,12 @@ const form = reactive({
 const isCapslockOn = ref(false)
 
 const handleLogin = async () => {
-  // const result = await store.dispatch('login', form)
-  // if (result.success) {
-  //   router.push('/')
-  // } else {
-  //   ElMessage.error(result.message)
-  // }
+  const result = await store.dispatch('login', form)
+  if (result.success) {
+    router.push('/')
+  } else {
+    ElMessage.error(result.message)
+  }
 }
 
 const handleKeyPress = (event) => {

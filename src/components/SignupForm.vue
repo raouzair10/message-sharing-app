@@ -32,9 +32,11 @@
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
+const store = useStore()
 const router = useRouter()
 const form = reactive({
   username: '',
@@ -52,14 +54,14 @@ const handleSignup = async () => {
     ElMessage.error('Password should be 8-16 characters long, and should contain at least an uppercase letter, a lowercase letter, a number, a special character, and no spaces')
     return
   }
-  // const result = await store.dispatch('signup', form)
-  // if (result.success) {
-  //   router.push('/')
-  // } else if (result.message === 'Username is already taken') {
-  //   ElMessage.error(result.message)
-  // } else {
-  //   console.log(result.message)
-  // }
+  const result = await store.dispatch('signup', form)
+  if (result.success) {
+    router.push('/')
+  } else if (result.message === 'Username is already taken') {
+    ElMessage.error(result.message)
+  } else {
+    console.log(result.message)
+  }
 }
 
 const handleKeyPress = (event) => {
@@ -67,7 +69,7 @@ const handleKeyPress = (event) => {
 }
 
 const goToLogin = async () => {
-  // await store.dispatch('goToLogin')
+  await store.dispatch('goToLogin')
 }
 
 onMounted(() => {
