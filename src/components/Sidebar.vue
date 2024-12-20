@@ -1,15 +1,26 @@
 <template>
   <div class="sidebar">
     <h1 v-if="user">{{ user.username }}</h1>
-    <el-button v-if="user" type="primary" @click="handleLogout">Logout</el-button>
-    <h2>Add New Task</h2>
-    <el-input v-model="newTaskTitle" placeholder="Task Title"></el-input>
-    <el-select v-model="newTaskPriority" placeholder="Select Priority">
-      <el-option label="High" value="High"></el-option>
-      <el-option label="Medium" value="Medium"></el-option>
-      <el-option label="Low" value="Low"></el-option>
-    </el-select>
-    <el-button type="primary" @click="addTask">Add Task</el-button>
+    <el-button v-if="user" type="danger" @click="handleLogout">Logout</el-button>
+    <div class="newMessage" v-if="user.level == 0">
+      <h2>Add New Message</h2>
+      <el-input v-model="newMessageContent" placeholder="Add message here"></el-input>
+      <el-select v-model="newMessageLevel" placeholder="Select Level">
+        <el-option label="1" value="1"></el-option>
+        <el-option label="2" value="2"></el-option>
+        <el-option label="3" value="3"></el-option>
+      </el-select>
+      <el-button type="primary" @click="addMessage">Add Message</el-button>
+      <h2>Add New User</h2>
+      <el-input v-model="newUsername" placeholder="Enter Username"></el-input>
+      <el-input v-model="newPassword" placeholder="Enter Password"></el-input>
+      <el-select v-model="newUserLevel" placeholder="Select Level">
+        <el-option label="1" value="1"></el-option>
+        <el-option label="2" value="2"></el-option>
+        <el-option label="3" value="3"></el-option>
+      </el-select>
+      <el-button type="primary" @click="addUser">Add User</el-button>
+    </div>
   </div>
 </template>
 
@@ -23,8 +34,11 @@ const store = useStore()
 const router = useRouter()
 
 const user = computed(() => store.getters.user)
-const newTaskTitle = ref('')
-const newTaskPriority = ref('')
+const newMessageContent = ref('')
+const newMessageLevel = ref('')
+const newUsername = ref('')
+const newPassword = ref('')
+const newUserLevel = ref('')
 
 const handleLogout = async () => {
   const result = await store.dispatch('logout')
@@ -34,20 +48,41 @@ const handleLogout = async () => {
   }
 }
 
-const addTask = async () => {
+const addMessage = async () => {
   try {
-    if (newTaskTitle.value && newTaskPriority.value) {
-      const newTask = {
-        title: newTaskTitle.value,
-        priority: newTaskPriority.value,
-        completed: false,
-        userId: user.value._id,
+    if (newMessageContent.value && newMessageLevel.value) {
+      const newMessage = {
+        content: newMessageContent.value,
+        level: newMessageLevel.value,
       }
-      const result = await store.dispatch('addTodo', newTask)
+      const result = await store.dispatch('addMessage', newMessage)
       if (result.success) {
-        ElMessage.success('Task added successfully')
-        newTaskTitle.value = ''
-        newTaskPriority.value = ''
+        ElMessage.success('Message added successfully')
+        newMessageContent.value = ''
+        newMessageLevel.value = ''
+      }
+    } else {
+      ElMessage.error('Please fill in all fields')
+    }
+  } catch (error) {
+    ElMessage.error(error.message)
+  }
+}
+
+const addUser = async () => {
+  try {
+    if (newUsername.value && newUserLevel.value && newPassword.value) {
+      const newUser = {
+        username: newUsername.value,
+        password: newPassword.value,
+        level: newUserLevel.value
+      }
+      const result = await store.dispatch('signup', newUser)
+      if (result.success) {
+        ElMessage.success('User added successfully')
+        newUsername.value = ''
+        newUserLevel.value = ''
+        newPassword.value = ''
       }
     } else {
       ElMessage.error('Please fill in all fields')
@@ -60,7 +95,7 @@ const addTask = async () => {
 
 <style scoped>
 .sidebar {
-  position: fixed;
+  position: absolute;
   height: 100vh;
   width: 250px;
   padding: 20px;
@@ -69,5 +104,11 @@ const addTask = async () => {
   flex-direction: column;
   gap: 15px;
   color: #fff;
+}
+
+.newMessage {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 </style>

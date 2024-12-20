@@ -10,15 +10,9 @@
           <div class="field">
             <input type="password" v-model="form.password" placeholder="Password" required>
           </div>
-          <div>
-            <div v-if="isCapslockOn" class="capslock">
-              CapsLock is On
-            </div>
           <div class="field btn">
             <input type="submit" value="Login">
           </div>
-          </div>
-          <div class="signup-link">Don't have an account? <RouterLink to="/signup">Signup!</RouterLink></div>
         </form>
       </div>
     </div>
@@ -38,7 +32,6 @@ const form = reactive({
   username: '',
   password: ''
 })
-const isCapslockOn = ref(false)
 
 const handleLogin = async () => {
   const result = await store.dispatch('login', form)
@@ -48,20 +41,6 @@ const handleLogin = async () => {
     ElMessage.error(result.message)
   }
 }
-
-const handleKeyPress = (event) => {
-  isCapslockOn.value = event.getModifierState('CapsLock')
-}
-
-onMounted(() => {
-  window.addEventListener('keyup', handleKeyPress)
-  window.addEventListener('keydown', handleKeyPress)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('keyup', handleKeyPress)
-  window.removeEventListener('keydown', handleKeyPress)
-})
 
 </script>
 

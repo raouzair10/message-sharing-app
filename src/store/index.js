@@ -1,12 +1,12 @@
 import { createStore } from 'vuex'
 import axios from 'axios'
 
-const apiUrl = 'http://localhost:3000'
+const apiUrl = 'http://localhost:5000/api'
 
 const store = createStore({
   state: {
     user: JSON.parse(sessionStorage.getItem('user')) || null,
-    todos: [],
+    messages: [],
   },
   mutations: {
     setUser(state, user) {
@@ -15,29 +15,29 @@ const store = createStore({
     },
     clearUser(state) {
       state.user = null
-      state.todos = []
+      state.messages = []
       sessionStorage.removeItem('user')
     },
-    setTodos(state, todos) {
-      state.todos = todos
+    setMessages(state, messages) {
+      state.messages = messages
     },
-    addTodo(state, todo) {
-      state.todos.push(todo)
+    addMessage(state, message) {
+      state.messages.push(message)
     },
-    updateTodo(state, updatedTodo) {
-      const index = state.todos.findIndex(todo => todo._id === updatedTodo._id)
+    updateMessage(state, updatedMessage) {
+      const index = state.messages.findIndex(message => message._id === updatedMessage._id)
       if (index !== -1) {
-        state.todos.splice(index, 1, updatedTodo)
+        state.messages.splice(index, 1, updatedMessage)
       }
     },
-    deleteTodo(state, todoId) {
-      state.todos = state.todos.filter(todo => todo._id !== todoId)
+    deleteMessage(state, messageId) {
+      state.messages = state.messages.filter(message => message._id !== messageId)
     }
   },
   actions: {
     async login({ commit }, { username, password }) {
       try {
-        const response = await axios.post(apiUrl, { transition: 'LOGIN', data: {username, password} })
+        const response = await axios.post(`${apiUrl}/users/login`, {username, password})
         const user = response.data
         commit('setUser', user)
         return { success: true }
@@ -45,11 +45,9 @@ const store = createStore({
         return { success: false, message: error.response.data.message }
       }
     },
-    async signup({ commit }, { username, password }) {
+    async signup({ commit }, { username, password, level }) {
       try {
-        const response = await axios.post(apiUrl, { transition: 'SIGNUP', data: {username, password} })
-        const user = response.data
-        commit('setUser', user)
+        await axios.post(`${apiUrl}/users/signup`, {username, password, level})
         return { success: true }
       } catch (error) {
         return { success: false, message: error.response.data.message }
@@ -57,68 +55,49 @@ const store = createStore({
     },
     async logout({ commit }) {
       try {
-        await axios.post(apiUrl, { transition: 'LOGOUT', data: {} })
         commit('clearUser')
         return { success: true }
       } catch (error) {
         return { success: false }
       }
     },
-    async goToSignup() {
+    async fetchMessages({ commit }, level) {
       try {
-        await axios.post(apiUrl, { transition: 'GO_TO_SIGNUP', data: {} })
+        const response = await axios.get(`${apiUrl}/messages`, {
+          params: { level },
+        });
+        const messages = response.data
+        commit('setMessages', messages)
         return { success: true }
       } catch (error) {
         console.log(error)
         return { success: false }
       }
     },
-    async goToLogin() {
+    async addMessage({ commit }, newMessage) {
       try {
-        await axios.post(apiUrl, { transition: 'GO_TO_LOGIN', data: {} })
+        const response = await axios.post(`${apiUrl}/messages`, newMessage)
+        commit('addMessage', response.data)
         return { success: true }
       } catch (error) {
         console.log(error)
         return { success: false }
       }
     },
-    async fetchTodos({ commit }, userId) {
+    async deleteMessage({ commit }, messageId) {
       try {
-        const response = await axios.post(apiUrl, { transition: 'FETCH_TODOS', data: {userId} })
-        const todos = response.data
-        commit('setTodos', todos)
+        await axios.delete(`${apiUrl}/messages/${messageId}`)
+        commit('deleteMessage', messageId)
         return { success: true }
       } catch (error) {
         console.log(error)
         return { success: false }
       }
     },
-    async addTodo({ commit }, newTodo) {
+    async updateMessage({ commit }, message) {
       try {
-        const response = await axios.post(apiUrl, { transition: 'ADD_TODO', data: {newTodo} })
-        console.log(response.data)
-        commit('addTodo', response.data)
-        return { success: true }
-      } catch (error) {
-        console.log(error)
-        return { success: false }
-      }
-    },
-    async deleteTodo({ commit }, todoId) {
-      try {
-        await axios.post(apiUrl, { transition: 'DELETE_TODO', data: {todoId} })
-        commit('deleteTodo', todoId)
-        return { success: true }
-      } catch (error) {
-        console.log(error)
-        return { success: false }
-      }
-    },
-    async updateTodo({ commit }, todo) {
-      try {
-        const response = await axios.post(apiUrl, { transition: 'UPDATE_TODO', data: {todo} })
-        console.log(response.data)
-        commit('updateTodo', response.data)
+        const response = await axios.put(`${apiUrl}/messages/${message._id}`, {message})
+        commit('updateMessage', response.data)
         return { success: true }
       } catch (error) {
         console.log(error)
@@ -129,7 +108,7 @@ const store = createStore({
   getters: {
     isAuthenticated: state => !!state.user,
     user: state => state.user,
-    todos: state => state.todos,
+    messages: state => state.messages,
   },
 })
 
