@@ -117,9 +117,34 @@ router.get('/:level', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    console.log(req.body)
-    const message = await Message.findByIdAndUpdate(req.params.id, req.body.message, { new: true });
-    res.json(message);
+    const message = req.body;
+    const level = message.level;
+    const content = message.content;
+    const key = await Key.findOne({ level: parseInt(level) });
+    if (!key) {
+      return res.status(404).json({ message: 'Public key not found for the specified level.' });
+    }
+
+    const publicKey = key.publicKey;
+    const encryptedContent = crypto.publicEncrypt(
+      {
+        key: publicKey,
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: 'sha256',
+      },
+      Buffer.from(content, 'utf8')
+    ).toString('base64');
+    const newMessage = {
+      ...message,
+      content: encryptedContent,
+      level: level
+    };
+    await Message.findByIdAndUpdate(req.params.id, newMessage, { new: true });
+    const responseMessage = {
+      ...newMessage,
+      content: content,
+    };
+    res.status(201).json(responseMessage);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

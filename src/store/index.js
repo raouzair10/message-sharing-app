@@ -94,7 +94,7 @@ const store = createStore({
     },
     async updateMessage({ commit }, message) {
       try {
-        const response = await axios.put(`${apiUrl}/messages/${message._id}`, {message})
+        const response = await axios.put(`${apiUrl}/messages/${message._id}`, message)
         commit('updateMessage', response.data)
         return { success: true }
       } catch (error) {

@@ -4,7 +4,7 @@
       <h2>Messages</h2>
     </div>
     <el-table :data="localMessages">
-      <el-table-column v-if="user.level == 0" width="60">
+      <el-table-column v-if="user && user.level == 0" width="60">
         <template #default="scope">
           <el-button type="danger" size="small" @click="deleteMessage(scope.row._id)">x</el-button>
         </template>
