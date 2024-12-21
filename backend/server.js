@@ -17,5 +17,6 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/keys', require('./routes/keys'));
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

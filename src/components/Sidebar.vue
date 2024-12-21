@@ -2,7 +2,7 @@
   <div class="sidebar">
     <h1 v-if="user">{{ user.username }}</h1>
     <el-button v-if="user" type="danger" @click="handleLogout">Logout</el-button>
-    <div class="newMessage" v-if="user.level == 0">
+    <div class="newMessage" v-if="user && user.level == 0">
       <h2>Add New Message</h2>
       <el-input v-model="newMessageContent" placeholder="Add message here"></el-input>
       <el-select v-model="newMessageLevel" placeholder="Select Level">

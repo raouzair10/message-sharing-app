@@ -63,9 +63,7 @@ const store = createStore({
     },
     async fetchMessages({ commit }, level) {
       try {
-        const response = await axios.get(`${apiUrl}/messages`, {
-          params: { level },
-        });
+        const response = await axios.get(`${apiUrl}/messages/${level}`);
         const messages = response.data
         commit('setMessages', messages)
         return { success: true }
